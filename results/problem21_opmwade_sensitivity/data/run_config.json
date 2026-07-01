@@ -1,0 +1,15 @@
+{
+  "output_dir": "results\\problem21_opmwade_sensitivity",
+  "init_file": "C:\\PhdResearch\\VibrationSuppression\\Simulation\\SensitivityAnalysis\\init_data\\PrG21InitData-target_1_05-none.npz",
+  "damping_mode": "none",
+  "target_angle": 1.05,
+  "max_nfes": 220,
+  "repeats": 3,
+  "seed": 20260701,
+  "workers": 8,
+  "initial_np_factor": 4.0,
+  "min_np_factor": 2.0,
+  "pareto_grid": 3,
+  "no_resume": false,
+  "enable_late_enhancements": false
+}
