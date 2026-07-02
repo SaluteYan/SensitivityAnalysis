@@ -1,0 +1,4 @@
+﻿objective,physical_meaning,unit,min_scale,max_scale,span,normalized_objective
+J_y,Tip vibration deformation,m^2 s,5.7446716081183626e-05,0.0009414569614186814,0.0008840102453374978,J_y_bar
+J_u,Control energy,J,0.029141892468867954,0.13293369839632072,0.10379180592745277,J_u_bar
+J_e,Maximum tracking error,rad,3.363930447664032e-05,0.009771694918917159,0.009738055614440518,J_e_bar

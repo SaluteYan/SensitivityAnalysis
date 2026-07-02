@@ -1,0 +1,22 @@
+{
+  "output_dir": "results/problem21_opmwade_sensitivity_balanced_20260701_195829",
+  "init_file": "init_data/PrG21InitData-target_1_05-none.npz",
+  "damping_mode": "none",
+  "target_angle": 1.05,
+  "max_nfes": 220,
+  "repeats": 1,
+  "anchor_max_nfes": 6400,
+  "sensitivity_max_nfes": 6400,
+  "pareto_max_nfes": 6400,
+  "anchor_repeats": 8,
+  "sensitivity_repeats": 6,
+  "pareto_repeats": 6,
+  "seed": 20260701,
+  "workers": 16,
+  "progress_interval": 800,
+  "initial_np_factor": 18.0,
+  "min_np_factor": 5.0,
+  "pareto_grid": 4,
+  "no_resume": false,
+  "enable_late_enhancements": true
+}
