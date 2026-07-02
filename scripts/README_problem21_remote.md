@@ -19,6 +19,7 @@ SENSITIVITY_REPEATS=6
 PARETO_REPEATS=6
 PARETO_GRID=4
 THREADS_PER_WORKER=1
+PROGRESS_INTERVAL=800
 WORKERS=CPU cores minus 2 on servers with at least 8 cores
 ```
 
@@ -26,6 +27,14 @@ Common overrides:
 
 ```bash
 WORKERS=32 THREADS_PER_WORKER=1 \
+OUTPUT_DIR=results/problem21_opmwade_sensitivity_balanced \
+bash scripts/run_problem21_paper_experiments.sh
+```
+
+To print more frequent progress lines:
+
+```bash
+WORKERS=16 THREADS_PER_WORKER=1 PROGRESS_INTERVAL=400 \
 OUTPUT_DIR=results/problem21_opmwade_sensitivity_balanced \
 bash scripts/run_problem21_paper_experiments.sh
 ```
@@ -59,6 +68,7 @@ bash scripts/run_problem21_paper_experiments.sh
 The experiment script parallelizes independent cases with multiple Python worker processes.
 The launcher sets BLAS/OpenMP thread counts to `THREADS_PER_WORKER` to avoid oversubscription.
 For this codebase, `THREADS_PER_WORKER=1` and a large `WORKERS` value is usually best because the bottleneck is the Python time-domain integration loop.
+Progress is printed every `PROGRESS_INTERVAL` NFEs per repeat, with the case id, repeat index, `nfes/max_nfes`, current best value, feasible rate, population size, and elapsed time.
 
 ## Resume Behavior
 

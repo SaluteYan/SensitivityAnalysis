@@ -75,6 +75,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pareto-repeats", type=int, default=None, help="Override repeats for epsilon-constraint Pareto cases.")
     parser.add_argument("--seed", type=int, default=20260701)
     parser.add_argument("--workers", type=int, default=max(1, min(8, os.cpu_count() or 1)))
+    parser.add_argument(
+        "--progress-interval",
+        type=int,
+        default=0,
+        help="Print per-repeat OPMWADE progress every N NFEs; 0 disables progress lines.",
+    )
     parser.add_argument("--initial-np-factor", type=float, default=4.0)
     parser.add_argument("--min-np-factor", type=float, default=2.0)
     parser.add_argument("--pareto-grid", type=int, default=3, help="epsilon levels per constrained objective.")
@@ -103,6 +109,18 @@ def finite_span(min_values: np.ndarray, max_values: np.ndarray) -> np.ndarray:
     span = np.asarray(max_values, dtype=float) - np.asarray(min_values, dtype=float)
     fallback = np.maximum(np.abs(max_values), 1.0) * 1e-6
     return np.where(np.abs(span) > 1e-15, span, fallback)
+
+
+def format_elapsed(seconds: float) -> str:
+    seconds = max(0.0, float(seconds))
+    whole = int(seconds)
+    hours, remainder = divmod(whole, 3600)
+    minutes, secs = divmod(remainder, 60)
+    if hours:
+        return f"{hours}h{minutes:02d}m{secs:02d}s"
+    if minutes:
+        return f"{minutes}m{secs:02d}s"
+    return f"{seconds:.1f}s"
 
 
 def normalize_with_scale(values: np.ndarray, min_values: np.ndarray, span: np.ndarray) -> np.ndarray:
@@ -273,7 +291,8 @@ def run_case(case: dict[str, Any], shared: dict[str, Any]) -> dict[str, Any]:
         max_nfes=int(case["max_nfes"]),
         save=False,
         init_file=shared["init_file"],
-        progress_interval=0,
+        progress_interval=int(shared.get("progress_interval", 0)),
+        progress_label=f"{case['case_id']}:{case['stage']}",
         enable_late_enhancements=bool(shared["enable_late_enhancements"]),
     )[0]
 
@@ -338,13 +357,19 @@ def run_cases(cases: list[dict[str, Any]], shared: dict[str, Any], workers: int)
         return []
 
     results: list[dict[str, Any]] = []
+    phase_start = time.perf_counter()
     print(f"Running {len(cases)} case(s) with {workers} worker(s)...", flush=True)
     if workers <= 1:
         for idx, case in enumerate(cases, 1):
             result = run_case(case, shared)
             results.append(result)
             source = "cache" if result.get("cache_hit") else "run"
-            print(f"[{idx}/{len(cases)}] {case['case_id']} done ({source})", flush=True)
+            case_elapsed = "cache" if result.get("cache_hit") else format_elapsed(float(result.get("elapsed_wall_time", 0.0)))
+            print(
+                f"[{idx}/{len(cases)}] {case['case_id']} done ({source}) | "
+                f"case_elapsed={case_elapsed} | phase_elapsed={format_elapsed(time.perf_counter() - phase_start)}",
+                flush=True,
+            )
         return results
 
     with ProcessPoolExecutor(max_workers=workers) as pool:
@@ -354,7 +379,12 @@ def run_cases(cases: list[dict[str, Any]], shared: dict[str, Any], workers: int)
             result = future.result()
             results.append(result)
             source = "cache" if result.get("cache_hit") else "run"
-            print(f"[{idx}/{len(cases)}] {case['case_id']} done ({source})", flush=True)
+            case_elapsed = "cache" if result.get("cache_hit") else format_elapsed(float(result.get("elapsed_wall_time", 0.0)))
+            print(
+                f"[{idx}/{len(cases)}] {case['case_id']} done ({source}) | "
+                f"case_elapsed={case_elapsed} | phase_elapsed={format_elapsed(time.perf_counter() - phase_start)}",
+                flush=True,
+            )
     return sorted(results, key=lambda row: row["case_id"])
 
 
@@ -894,6 +924,7 @@ def main() -> None:
         "target_angle": float(args.target_angle),
         "initial_np_factor": float(args.initial_np_factor),
         "min_np_factor": float(args.min_np_factor),
+        "progress_interval": int(args.progress_interval),
         "enable_late_enhancements": bool(args.enable_late_enhancements),
     }
     config_path = dirs["data"] / "run_config.json"

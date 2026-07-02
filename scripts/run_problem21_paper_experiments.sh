@@ -23,6 +23,7 @@ ANCHOR_REPEATS="${ANCHOR_REPEATS:-8}"
 SENSITIVITY_REPEATS="${SENSITIVITY_REPEATS:-6}"
 PARETO_REPEATS="${PARETO_REPEATS:-6}"
 PARETO_GRID="${PARETO_GRID:-4}"
+PROGRESS_INTERVAL="${PROGRESS_INTERVAL:-800}"
 
 INITIAL_NP_FACTOR="${INITIAL_NP_FACTOR:-18.0}"
 MIN_NP_FACTOR="${MIN_NP_FACTOR:-5.0}"
@@ -58,7 +59,7 @@ mkdir -p logs
 
 LOG_FILE="logs/problem21_paper_$(date +%Y%m%d_%H%M%S).log"
 echo "Writing log to ${LOG_FILE}"
-echo "workers=${WORKERS}, threads_per_worker=${THREADS_PER_WORKER}"
+echo "workers=${WORKERS}, threads_per_worker=${THREADS_PER_WORKER}, progress_interval=${PROGRESS_INTERVAL}"
 
 python experiments/problem21_opmwade_sensitivity.py \
   --output-dir "${OUTPUT_DIR}" \
@@ -75,5 +76,6 @@ python experiments/problem21_opmwade_sensitivity.py \
   --initial-np-factor "${INITIAL_NP_FACTOR}" \
   --min-np-factor "${MIN_NP_FACTOR}" \
   --pareto-grid "${PARETO_GRID}" \
+  --progress-interval "${PROGRESS_INTERVAL}" \
   --enable-late-enhancements \
   "$@" 2>&1 | tee "${LOG_FILE}"
